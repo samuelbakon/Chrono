@@ -1,10 +1,10 @@
 # Chrono
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![PHP Version](https://img.shields.io/packagist/php-v/samy/Chrono)](https://www.php.net/)
-[![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/yourusername/Chrono/php.yml?branch=main)](https://github.com/yourusername/Chrono/actions)
-[![Codecov](https://img.shields.io/codecov/c/github/yourusername/Chrono)](https://codecov.io/gh/yourusername/Chrono)
-[![Total Downloads](https://img.shields.io/packagist/dt/samy/Chrono)](https://packagist.org/packages/samy/Chrono)
+[![PHP Version](https://img.shields.io/packagist/php-v/samyasm/chrono)](https://www.php.net/)
+[![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/samyasm/chrono/php.yml?branch=main)](https://github.com/samyasm/chrono/actions)
+[![Codecov](https://img.shields.io/codecov/c/github/samyasm/chrono)](https://codecov.io/gh/samyasm/chrono)
+[![Total Downloads](https://img.shields.io/packagist/dt/samyasm/chrono)](https://packagist.org/packages/samyasm/chrono)
 
 Une bibliothèque PHP moderne pour la manipulation et le formatage des dates, organisée en classes spécialisées pour une meilleure maintenabilité et une meilleure organisation du code.
 
@@ -13,7 +13,7 @@ Une bibliothèque PHP moderne pour la manipulation et le formatage des dates, or
 Utilisez Composer pour installer le package :
 
 ```bash
-composer require samy/Chrono
+composer require samyasm/chrono
 ```
 
 ## Migration depuis DateUtil (v1.x vers v2.x)
@@ -311,7 +311,7 @@ composer static-analysis
 
 ## Auteur
 
-- [Samy](https://github.com/yourusername)
+- [Samy](https://samuel-bakon.com)
 
 ---
 
