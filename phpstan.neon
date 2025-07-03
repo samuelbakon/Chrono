@@ -1,0 +1,14 @@
+parameters:
+    level: max
+    paths:
+        - src/
+        - tests/
+    excludePaths:
+        - %currentWorkingDirectory%/vendor/*
+    checkMissingIterableValueType: true
+    reportUnmatchedIgnoredErrors: false
+
+    # Ignorer certaines erreurs spécifiques si nécessaire
+    ignoreErrors: []
+
+# Configuration de base sans règles personnalisées

@@ -1,0 +1,37 @@
+# Configuration pour Codecov
+coverage:
+  status:
+    project:
+      default:
+        target: 100%  # Objectif de couverture de code
+        threshold: 0%  # Marge d'erreur
+    patch: off
+    changes: off
+
+comment:
+  layout: "reach, diff, flags, files, footer"
+  behavior: default
+  require_changes: false
+  require_base: no
+  require_head: yes
+  flags: null
+  paths: ["src/"]
+  branches: ["main", "master"]
+
+ignore:
+  - "tests/*"  # Ignorer les fichiers de test dans le rapport de couverture
+  - "vendor/*"  # Ignorer les dépendances
+  - "*.xml"  # Ignorer les fichiers de configuration XML
+  - "*.yml"  # Ignorer les fichiers de configuration YAML
+  - "*.dist"  # Ignorer les fichiers de distribution
+  - "*.md"  # Ignorer les fichiers Markdown
+
+codecov:
+  require_ci_to_pass: true  # Nécessite que le CI passe avant d'envoyer les rapports
+  max_report_age: off  # Désactiver l'expiration des rapports
+  notify:
+    after_n_builds: 1  # Notifier après chaque build
+  branch: main  # Branche par défaut
+  slug: samy/Chrono  # Nom du dépôt
+  token: ${CODECOV_TOKEN}  # Le token sera fourni par les secrets GitHub
+  verbose: true  # Mode verbeux pour le débogage
