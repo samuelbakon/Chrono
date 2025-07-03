@@ -1,11 +1,13 @@
 <?php
 
-namespace Samy\SuperDate;
+namespace SamyAsm\Chrono;
 
+use DatePeriod;
 use DateTime;
 use DateTimeInterface;
 use DateTimeZone;
 use Exception;
+use InvalidArgumentException;
 
 class DateUtil
 {
@@ -50,257 +52,404 @@ class DateUtil
     public const ONE_MONTH_IN_MINUTE = 43200;
     public const MIDNIGHT_TIME = '00:00';
 
-    public static function timeToDate(int $timestamp): ?DateTimeInterface
-    {
-        $dateTime = new DateTime("@$timestamp"); // Crée un objet DateTime depuis le timestamp
-        $dateTime->setTimezone(new DateTimeZone(date_default_timezone_get())); // Définit le fuseau horaire
-
-        return $dateTime;
-    }
-
     /**
-     * @return DateTimeInterface|null
+     * Convert a Unix timestamp to a DateTime object
+     *
+     * @param int $timestamp Unix timestamp to convert
+     * @return DateTime|null DateTime object or null on failure
      */
-    public static function getFirstDayOfTheMonthFromDate(DateTimeInterface $dateTime)
+    public static function timeToDate(int $timestamp): ?DateTime
     {
         try {
-            return new DateTime($dateTime->format('01-m-Y'));
-        } catch (Exception $exception) {
-            return null;
-        }
-    }
-
-    /**
-     * @return DateTimeInterface|null
-     */
-    public static function getFirstDayOfTheWeekFromDate(DateTimeInterface $dateTime)
-    {
-        try {
-            $rank = self::getWeekday($dateTime->format('Y-m-d'));
-            $rank -= 1;
-            $date = new DateTime($dateTime->format('Y-m-d'));
-            $date = $date->sub(new \DateInterval('P'.$rank.'D'));
-
-            return $date;
-        } catch (Exception $exception) {
-            return null;
-        }
-    }
-
-    /**
-     * @return DateTimeInterface|null
-     */
-    public static function getFirstDayOfTheYearFromDate(DateTimeInterface $dateTime)
-    {
-        try {
-            return new DateTime($dateTime->format('01-01-Y'));
-        } catch (Exception $exception) {
-            return null;
-        }
-    }
-
-    public static function getWeekday($date)
-    {
-        return date('w', strtotime($date));
-    }
-
-    public static function getMonthday($date, $mode = 0) // 0 for int, another to get name
-    {$date = new DateTime($date);
-        $date = $date->format('m');
-
-        if (0 === $mode) {
-            return intval($date);
-        }
-
-        return self::getMonthFromPosition(intval($date));
-    }
-
-    public static function getMonthFromPosition($position)
-    {
-        if (isset(self::MONTHS[$position])) {
-            return self::MONTHS[$position];
-        }
-
-        return 'UNK';
-    }
-
-    public static function getYearDay()
-    {
-        $date = new DateTime('Y');
-        $date = date($date->format('y-01-01'));
-        $diff = new DateTime();
-        try {
-            $diff = (new DateTime())->diff(new DateTime($date))->days;
+            $dateTime = new DateTime("@$timestamp");
+            $dateTime->setTimezone(new DateTimeZone(date_default_timezone_get()));
+            return $dateTime;
         } catch (Exception $e) {
+            return null;
         }
-
-        return $diff;
     }
 
-    public static function getYear()
+    /**
+     * Get the first day of the month for the given date
+     *
+     * @param DateTimeInterface $dateTime The reference date
+     * @return DateTime|null First day of the month as DateTime or null on failure
+     */
+    public static function getFirstDayOfTheMonthFromDate(DateTimeInterface $dateTime): ?DateTime
     {
         try {
-            $date = new DateTime('Y');
+            // Create a new DateTime instance from the interface to ensure we have a mutable object
+            $date = DateTime::createFromInterface($dateTime);
+            
+            // Set the day to the first day of the month and reset time to midnight
+            $date->setDate((int)$date->format('Y'), (int)$date->format('m'), 1);
+            $date->setTime(0, 0, 0);
+            
+            return $date;
+        } catch (Exception $e) {
+            return null;
+        }
+    }
 
-            return $date->format('Y');
-        } catch (Exception $exception) {
+    /**
+     * Get the first day of the week (Monday) for the given date
+     *
+     * @param DateTimeInterface $dateTime The reference date
+     * @return DateTime|null First day of the week as DateTime or null on failure
+     */
+    public static function getFirstDayOfTheWeekFromDate(DateTimeInterface $dateTime): ?DateTime
+    {
+        try {
+            // Create a new DateTime instance from the interface to ensure we have a mutable object
+            $date = DateTime::createFromInterface($dateTime);
+            
+            // Get the day of the week (0=Sunday, 6=Saturday)
+            $dayOfWeek = (int)$date->format('w');
+            
+            // Calculate days to subtract to get to Monday (1=Monday, 0=Sunday in our calculation)
+            $daysToSubtract = $dayOfWeek === 0 ? 6 : $dayOfWeek - 1;
+            
+            if ($daysToSubtract > 0) {
+                $date->sub(new \DateInterval('P' . $daysToSubtract . 'D'));
+            }
+            
+            // Reset time to start of day
+            $date->setTime(0, 0, 0);
+            
+            return $date;
+        } catch (Exception $e) {
+            return null;
+        }
+    }
+
+    /**
+     * Get the first day of the year for the given date
+     *
+     * @param DateTimeInterface $dateTime The reference date
+     * @return DateTime|null First day of the year as DateTime or null on failure
+     */
+    public static function getFirstDayOfTheYearFromDate(DateTimeInterface $dateTime): ?DateTime
+    {
+        try {
+            // Create a new DateTime instance from the interface to ensure we have a mutable object
+            $date = DateTime::createFromInterface($dateTime);
+            
+            // Set to January 1st of the same year and reset time to midnight
+            $date->setDate((int)$date->format('Y'), 1, 1);
+            $date->setTime(0, 0, 0);
+            
+            return $date;
+        } catch (Exception $e) {
+            return null;
+        }
+    }
+
+    /**
+     * Get the day of the week (0 for Sunday through 6 for Saturday)
+     *
+     * @param string|DateTimeInterface $date Date string or DateTimeInterface object
+     * @return int Day of the week (0-6)
+     */
+    public static function getWeekday(string|DateTimeInterface $date): int
+    {
+        if ($date instanceof DateTimeInterface) {
+            return (int) $date->format('w');
+        }
+        return (int) date('w', strtotime($date));
+    }
+
+    /**
+     * Get the month day or month name from a date
+     *
+     * @param string|DateTimeInterface $date Date string or DateTimeInterface object
+     * @param int $mode 0 to return month as int, any other value to return month name
+     * @return int|string Month as integer or month name
+     */
+    public static function getMonthday(string|DateTimeInterface $date, int $mode = 0): int|string
+    {
+        if ($date instanceof DateTimeInterface) {
+            $month = (int) $date->format('m');
+        } else {
+            $dateObj = new DateTime($date);
+            $month = (int) $dateObj->format('m');
+        }
+
+        return $mode === 0 ? $month : self::getMonthFromPosition($month);
+    }
+
+    /**
+     * Get month abbreviation from its position (1-12)
+     *
+     * @param int $position Month number (1-12)
+     * @return string Three-letter month abbreviation or 'UNK' if invalid
+     */
+    public static function getMonthFromPosition(int $position): string
+    {
+        return self::MONTHS[$position] ?? 'UNK';
+    }
+
+    /**
+     * Get the day of the year (0-365/366)
+     *
+     * @return int Day of the year
+     */
+    public static function getYearDay(): int
+    {
+        try {
+            $currentYear = (new DateTime())->format('Y');
+            $startOfYear = new DateTime($currentYear . '-01-01');
+            $now = new DateTime();
+            $diff = $startOfYear->diff($now);
+            
+            return (int) $diff->days;
+        } catch (Exception $e) {
+            return 0;
+        }
+    }
+
+    /**
+     * Get the current year as a string
+     *
+     * @return string Current year as a 4-digit string
+     */
+    public static function getYear(): string
+    {
+        try {
+            return (new DateTime())->format('Y');
+        } catch (Exception $e) {
             return '1759';
         }
     }
 
     /**
-     * @return DateTimeInterface|null
+     * Convert a DateTimeInterface to a DateTime object
      *
-     * @throws Exception
+     * @param DateTimeInterface|null $dateTime The DateTimeInterface to convert, or null
+     * @return DateTime|null A new DateTime instance or null if input was null
+     * @throws Exception If the date/time string is invalid
      */
     public static function interfaceToDateTime(?DateTimeInterface $dateTime = null): ?DateTime
     {
-        if (!$dateTime) {
+        if ($dateTime === null) {
             return null;
         }
 
-        return new DateTime($dateTime->format('Y-m-d H:i'));
-    }
-
-    public static function getDateDayDif(DateTimeInterface $dateTime1, DateTimeInterface $dateTime2, $normalize = false)
-    {
-        if ($normalize) {
-            $dateTime1 = new DateTime($dateTime1->format('Y-m-d'));
-            $dateTime2 = new DateTime($dateTime2->format('Y-m-d'));
+        if ($dateTime instanceof DateTime) {
+            return clone $dateTime;
         }
-        $diff = date_diff($dateTime1, $dateTime2);
-        $_negative = (0 === $diff->invert) ? -1 : 1;
 
-        return $diff->days * $_negative;
-    }
-
-    public static function getMinuteDateDif(DateTimeInterface $dateTime1, DateTimeInterface $dateTime2, $absolute = false)
-    {
-        return self::getSecondsDateDif($dateTime1, $dateTime2) / 60;
-    }
-
-    public static function getSecondsDateDif(DateTimeInterface $dateTime1, DateTimeInterface $dateTime2): int
-    {
-        $diff = $dateTime1->diff($dateTime2);
-        $seconds = ($diff->days * 24 * 60 * 60) + ($diff->h * 60 * 60) + $diff->i * 60 + $diff->s;
-        $is_negative = (0 === $diff->invert) ? -1 : 1;
-
-        return $seconds * $is_negative;
+        return new DateTime('@' . $dateTime->getTimestamp());
     }
 
     /**
-     * @return float|int
+     * Get the difference in days between two dates
      *
-     * @throws Exception
+     * @param DateTimeInterface $dateTime1 First date
+     * @param DateTimeInterface $dateTime2 Second date
+     * @param bool $normalize If true, normalize dates to start of day
+     * @return int Difference in days (negative if $dateTime1 is before $dateTime2)
+     */
+    public static function getDateDayDif(
+        DateTimeInterface $dateTime1,
+        DateTimeInterface $dateTime2,
+        bool $normalize = false
+    ): int {
+        if ($normalize) {
+            $date1 = DateTime::createFromInterface($dateTime1)->setTime(0, 0);
+            $date2 = DateTime::createFromInterface($dateTime2)->setTime(0, 0);
+        } else {
+            $date1 = $dateTime1;
+            $date2 = $dateTime2;
+        }
+        
+        $diff = $date1->diff($date2);
+        return (int) ($diff->days * ($diff->invert ? -1 : 1));
+    }
+
+    /**
+     * Get the difference in minutes between two dates
+     *
+     * @param DateTimeInterface $dateTime1 First date
+     * @param DateTimeInterface $dateTime2 Second date
+     * @param bool $absolute If true, return absolute difference
+     * @return float Difference in minutes (negative if $dateTime1 is before $dateTime2 and $absolute is false)
+     */
+    public static function getMinuteDateDif(
+        DateTimeInterface $dateTime1,
+        DateTimeInterface $dateTime2,
+        bool $absolute = false
+    ): float {
+        $secondsDiff = self::getSecondsDateDif($dateTime1, $dateTime2);
+        $minutes = $secondsDiff / 60;
+        return $absolute ? abs($minutes) : $minutes;
+    }
+
+    /**
+     * Get the difference in seconds between two dates
+     *
+     * @param DateTimeInterface $dateTime1 First date
+     * @param DateTimeInterface $dateTime2 Second date
+     * @return int Difference in seconds (negative if $dateTime1 is before $dateTime2)
+     */
+    public static function getSecondsDateDif(DateTimeInterface $dateTime1, DateTimeInterface $dateTime2): int
+    {
+        $timestamp1 = $dateTime1->getTimestamp();
+        $timestamp2 = $dateTime2->getTimestamp();
+        return $timestamp1 - $timestamp2;
+    }
+
+    /**
+     * Get the number of days remaining between the given date and now
+     *
+     * @param DateTimeInterface $dateTime The date to compare with current time
+     * @return int Number of days remaining (can be negative if the date is in the past)
+     * @throws Exception If date operations fail
      */
     public static function getRemainingDay(DateTimeInterface $dateTime): int
     {
-        return self::getDateDayDif($dateTime, new DateTime());
+        return (int)self::getDateDayDif($dateTime, new DateTime());
     }
 
-    public static function getIntervalOfToday()
+    public static function getIntervalOfToday(): array
     {
         return self::getInterval('DAY');
     }
 
-    public static function lastSeenHelp($date): string
+    /**
+     * Get a human-readable string representing the time elapsed since a given date
+     *
+     * @param string|DateTimeInterface $date The date to compare with current time
+     * @return string Human-readable time difference (e.g., '5 Minutes', '2 Hours', '3 Days')
+     * @throws Exception If date creation fails
+     */
+    public static function lastSeenHelp(string|DateTimeInterface $date): string
     {
-        $mydate = date('Y-m-d H:i:s');
-        $theDiff = '';
-        // echo $mydate;//2014-06-06 21:35:55
-        $datetime1 = date_create($date);
-        $datetime2 = date_create($mydate);
-        $interval = date_diff($datetime1, $datetime2);
-        // echo $interval->format('%s Seconds %i Minutes %h Hours %d days %m Months %y Year    Ago')."<br>";
-        $min = $interval->format('%i');
-        $sec = $interval->format('%s');
-        $hour = $interval->format('%h');
-        $mon = $interval->format('%m');
-        $day = $interval->format('%d');
-        $year = $interval->format('%y');
-        if ('00000' == $interval->format('%i%h%d%m%y')) {
-            // echo $interval->format('%i%h%d%m%y')."<br>";
-            return $sec.' Secondes';
-        } elseif ('0000' == $interval->format('%h%d%m%y')) {
-            return $min.' Minutes';
-        } elseif ('000' == $interval->format('%d%m%y')) {
-            return $hour.' Hours';
-        } elseif ('00' == $interval->format('%m%y')) {
-            return $day.' Days';
-        } elseif ('0' == $interval->format('%y')) {
-            return $mon.' Month';
+        $now = new DateTime();
+        $targetDate = $date instanceof DateTimeInterface 
+            ? DateTime::createFromInterface($date) 
+            : new DateTime($date);
+            
+        $interval = $now->diff($targetDate);
+        
+        // Get all interval components
+        $components = [
+            'year' => (int)$interval->format('%y'),
+            'month' => (int)$interval->format('%m'),
+            'day' => (int)$interval->format('%d'),
+            'hour' => (int)$interval->format('%h'),
+            'minute' => (int)$interval->format('%i'),
+            'second' => (int)$interval->format('%s')
+        ];
+        
+        // Determine the most significant time unit
+        if ($components['year'] > 0) {
+            return $components['year'] . ' Year' . ($components['year'] > 1 ? 's' : '');
+        } elseif ($components['month'] > 0) {
+            return $components['month'] . ' Month' . ($components['month'] > 1 ? 's' : '');
+        } elseif ($components['day'] > 0) {
+            return $components['day'] . ' Day' . ($components['day'] > 1 ? 's' : '');
+        } elseif ($components['hour'] > 0) {
+            return $components['hour'] . ' Hour' . ($components['hour'] > 1 ? 's' : '');
+        } elseif ($components['minute'] > 0) {
+            return $components['minute'] . ' Minute' . ($components['minute'] > 1 ? 's' : '');
         } else {
-            return $year.' Year';
+            return $components['second'] . ' Second' . ($components['second'] !== 1 ? 's' : '');
         }
     }
 
     /**
-     * @return DateTimeInterface[]|[]
+     * Get a date range based on a period type
+     *
+     * @param string $period The period type (e.g., 'DAY', 'YESTERDAY', 'MONTH', 'WEEK', 'YEAR')
+     * @return array{start: DateTimeInterface, end: DateTimeInterface} Array containing start and end dates
+     * @throws InvalidArgumentException If period is not recognized
+     * @throws Exception If date operations fail
      */
-    public static function getInterval($period): array
+    public static function getInterval(string $period): array
     {
-        try {
-            $date = new DateTime();
-            $today = $date->format('Y-m-d');
+        $today = new DateTime('today');
+        $startDate = null;
+        $endDate = null;
 
-            $today = new DateTime($today);
+        switch (strtoupper($period)) {
+            case 'DAY':
+                $startDate = clone $today;
+                $endDate = (clone $startDate)->add(new \DateInterval('P1D'));
+                break;
 
-            if ('DAY' == $period) {
-                $start_date = $today;
-                $limit = (new DateTime($start_date->format('Y-m-d')))->add(new \DateInterval('P1D'));
-            } elseif ('YESTERDAY' == $period) {
-                $limit = $today;
-                $start_date = (new DateTime($limit->format('Y-m-d')))->sub(new \DateInterval('P1D'));
-            } elseif ('MONTH' == $period) {
-                $start_date = DateUtil::getFirstDayOfTheMonthFromDate($today);
-                $add = DateUtil::getMonthday((new DateTime())->format('Y-m-d'));
-                $add = 30 - ($add + 0);
-                $limit = $today->add(new \DateInterval('P'.$add.'D'));
-            } elseif ('TOMORROW' == $period) {
-                $start_date = (new DateTime($today->format('Y-m-d')))->add(new \DateInterval('P1D'));
-                $limit = $limit = (new DateTime($start_date->format('Y-m-d')))->add(new \DateInterval('P1D'));
-            } elseif ('WEEK' == $period) {
-                $start_date = DateUtil::getFirstDayOfTheWeekFromDate($today);
-                $add = DateUtil::getWeekday((new DateTime())->format('Y-m-d'));
-                $add = 7 - ($add + 0);
-                $limit = $today->add(new \DateInterval('P'.$add.'D'));
-            } else {// default YEAR
-                $start_date = DateUtil::getFirstDayOfTheYearFromDate($today);
-                $add = DateUtil::getYearDay();
-                $add = 365 - ($add + 1);
-                $limit = $today->add(new \DateInterval('P'.$add.'D'));
-            }
-        } catch (Exception $exception) {
-            return [
-                'start' => null,
-                'end' => null,
-            ];
+            case 'YESTERDAY':
+                $endDate = clone $today;
+                $startDate = (clone $today)->sub(new \DateInterval('P1D'));
+                break;
+
+            case 'MONTH':
+                $startDate = self::getFirstDayOfTheMonthFromDate($today);
+                if ($startDate === null) {
+                    throw new Exception('Could not determine first day of month');
+                }
+                $daysInMonth = (int)$today->format('t');
+                $daysRemaining = $daysInMonth - (int)$today->format('j');
+                $endDate = (clone $today)->add(new \DateInterval("P{$daysRemaining}D"));
+                break;
+
+            case 'TOMORROW':
+                $startDate = (clone $today)->add(new \DateInterval('P1D'));
+                $endDate = (clone $startDate)->add(new \DateInterval('P1D'));
+                break;
+
+            case 'WEEK':
+                $startDate = self::getFirstDayOfTheWeekFromDate($today);
+                if ($startDate === null) {
+                    throw new Exception('Could not determine first day of week');
+                }
+                $daysRemaining = 6 - (int)$today->format('w'); // 0 (Sunday) to 6 (Saturday)
+                $endDate = (clone $today)->add(new \DateInterval("P{$daysRemaining}D"));
+                break;
+
+            case 'YEAR':
+                $startDate = self::getFirstDayOfTheYearFromDate($today);
+                if ($startDate === null) {
+                    throw new Exception('Could not determine first day of year');
+                }
+                $dayOfYear = (int)$today->format('z');
+                $isLeapYear = (bool)$today->format('L');
+                $daysInYear = $isLeapYear ? 366 : 365;
+                $daysRemaining = $daysInYear - $dayOfYear - 1;
+                $endDate = (clone $today)->add(new \DateInterval("P{$daysRemaining}D"));
+                break;
+
+            default:
+                throw new InvalidArgumentException(sprintf('Unsupported period type: %s', $period));
         }
 
         return [
-            'start' => $start_date,
-            'end' => $limit,
+            'start' => $startDate,
+            'end' => $endDate
         ];
     }
 
     /**
-     * @param string $date
+     * Create a DateTime object from a string or return null if invalid
      *
-     * @return DateTimeInterface|null
-     *
-     * @throws Exception
+     * @param string|DateTimeInterface|null $date Date string or DateTimeInterface object
+     * @return DateTime|null A new DateTime instance or null if input was null/invalid
+     * @throws Exception If the date string is invalid and not null
      */
     public static function getDate($date = 'now'): ?DateTime
     {
-        if ($date) {
-            try {
-                return new DateTime($date);
-            } catch (\Throwable $t) {
-                throw new Exception('Impossible de construire la date : '.$date);
-            }
+        if ($date === null) {
+            return null;
         }
-
-        return null;
+        
+        if ($date instanceof DateTimeInterface) {
+            return self::interfaceToDateTime($date);
+        }
+        
+        try {
+            return new DateTime($date);
+        } catch (\Throwable $t) {
+            throw new Exception('Impossible de construire la date : ' . $date);
+        }
     }
 
     /**
@@ -310,38 +459,54 @@ class DateUtil
      *
      * @throws Exception
      */
-    public static function getDateAsString($date = 'now')
+    public static function getDateAsString($date = 'now'): string
     {
         return self::getDate($date)->format('H:i Y-M-d');
     }
 
     /**
-     * Get first date of date day.
+     * Get the start of the day (midnight) for the given date
      *
-     * @param string $date
-     *
-     * @return DateTimeInterface
-     *
-     * @throws Exception
+     * @param string|DateTimeInterface $date The date to process (default: 'now')
+     * @return DateTime Start of the day as DateTime
+     * @throws Exception If the date is invalid
      */
-    public static function getDateFromZero($date = 'now')
+    public static function getDateFromZero(string|DateTimeInterface $date = 'now'): DateTime
     {
-        return new DateTime((new DateTime($date))->format('Y-m-d').' 00:00');
+        try {
+            $dateTime = $date instanceof DateTimeInterface 
+                ? DateTime::createFromInterface($date)
+                : new DateTime($date);
+                
+            $dateTime->setTime(0, 0, 0);
+            return $dateTime;
+        } catch (Exception $e) {
+            throw new Exception(sprintf('Invalid date provided to getDateFromZero: %s', $e->getMessage()));
+        }
     }
 
     /**
-     * @param string $date
+     * Get the end of the day (23:59:59) for the given date
      *
-     * @return DateTimeInterface
-     *
-     * @throws Exception
+     * @param string|DateTimeInterface $date The date to process (default: 'now')
+     * @return DateTime End of the day as DateTime
+     * @throws Exception If the date is invalid
      */
-    public static function getDateAtEnd($date = 'now')
+    public static function getDateAtEnd(string|DateTimeInterface $date = 'now'): DateTime
     {
-        return self::addHoursToDate(new DateTime((new DateTime($date))->format('Y-m-d').' 00:00'), 24);
+        try {
+            $dateTime = $date instanceof DateTimeInterface 
+                ? DateTime::createFromInterface($date)
+                : new DateTime($date);
+                
+            $dateTime->setTime(23, 59, 59);
+            return $dateTime;
+        } catch (Exception $e) {
+            throw new Exception(sprintf('Invalid date provided to getDateAtEnd: %s', $e->getMessage()));
+        }
     }
 
-    public static function getIntervalFromDates($date_interval = '15-02-2020/17-14-2020')
+    public static function getIntervalFromDates($date_interval = '15-02-2020/17-14-2020'): array
     {
         try {
             if (self::isValidDate($date_interval)) {
@@ -349,7 +514,7 @@ class DateUtil
 
                 $date = (new DateTime(self::getDate($date_interval)->format('Y-m-d')))->add(new \DateInterval('P1D'));
 
-                $date_interval = $stored.'/'.$date->format('d-m-Y 00:00');
+                $date_interval = $stored . '/' . $date->format('d-m-Y 00:00');
             }
 
             $dates = explode('-', $date_interval);
@@ -368,7 +533,7 @@ class DateUtil
                     ];
                 }
             }
-        } catch (Exception $exception) {
+        } catch (Exception $e) {
             return [
                 'start' => null,
                 'end' => null,
@@ -388,7 +553,7 @@ class DateUtil
      *
      * @throws Exception
      */
-    public static function addHoursToDate(DateTimeInterface $dateTime, $hours = 1)
+    public static function addHoursToDate(DateTimeInterface $dateTime, $hours = 1): DateTime|null
     {
         return self::addMinutesToDate($dateTime, self::convertHoursToMinutes($hours));
     }
@@ -398,7 +563,7 @@ class DateUtil
      *
      * @throws Exception
      */
-    public static function addTimeToDate(?DateTimeInterface $dateTime, ?DateTimeInterface $time)
+    public static function addTimeToDate(?DateTimeInterface $dateTime, ?DateTimeInterface $time): DateTime|null
     {
         if (!$time && $dateTime) {
             return self::dateFromInterface($dateTime);
@@ -434,7 +599,7 @@ class DateUtil
 
         $dateTime = self::dateFromInterface($dateTime); // Convertir en DateTime si nécessaire
 
-        $interval = new \DateInterval('PT'.$seconds.'S');
+        $interval = new \DateInterval('PT' . $seconds . 'S');
         $dateTime->add($interval);
 
         return $dateTime;
@@ -445,22 +610,22 @@ class DateUtil
      *
      * @throws Exception
      */
-    public static function dateFromInterface(DateTimeInterface $dateTime)
+    public static function dateFromInterface(DateTimeInterface $dateTime): DateTime
     {
         return new DateTime($dateTime->format('Y-m-d H:i:s'));
     }
 
-    public static function convertDaysToMinutes($days = 1)
+    public static function convertDaysToMinutes($days = 1): int
     {
         return $days * 24 * 60;
     }
 
-    public static function convertHoursToMinutes($days = 1)
+    public static function convertHoursToMinutes($days = 1): int
     {
         return $days * 60;
     }
 
-    public static function convertMinutesToHours($minutes = 1)
+    public static function convertMinutesToHours($minutes = 1): float|int
     {
         if ($minutes < 1) {
             return 0;
@@ -478,7 +643,7 @@ class DateUtil
      *
      * @throws Exception
      */
-    public static function addDaysToDate(DateTimeInterface $dateTime, $days = 1)
+    public static function addDaysToDate(DateTimeInterface $dateTime, $days = 1): DateTime|null
     {
         return self::addMinutesToDate($dateTime, self::convertDaysToMinutes($days));
     }
@@ -490,7 +655,7 @@ class DateUtil
      *
      * @throws Exception
      */
-    public static function addMinutesToDate(DateTimeInterface $dateTime, $minutes = 15)
+    public static function addMinutesToDate(DateTimeInterface $dateTime, $minutes = 15): DateTime|null
     {
         if (!$minutes || 0 === $minutes) {
             $minutes = 15;
@@ -507,9 +672,9 @@ class DateUtil
         $dateTime = new DateTime($dateTime->format('Y-m-d H:i'));
 
         try {
-            return $dateTime->add(new \DateInterval('P0Y0M'.$days.'DT'.$hours.'H'.$minutes.'M0S'));
-        } catch (Exception $exception) {
-            return (new DateTime())->add(new \DateInterval('P0Y0M'.$days.'DT'.$hours.'H'.$minutes.'M0S'));
+            return $dateTime->add(new \DateInterval('P0Y0M' . $days . 'DT' . $hours . 'H' . $minutes . 'M0S'));
+        } catch (Exception $e) {
+            return (new DateTime())->add(new \DateInterval('P0Y0M' . $days . 'DT' . $hours . 'H' . $minutes . 'M0S'));
         }
     }
 
@@ -521,7 +686,7 @@ class DateUtil
      *
      * @throws Exception
      */
-    public static function subtractMinutesToDate(DateTimeInterface $date, $minutes = 1)
+    public static function subtractMinutesToDate(DateTimeInterface $date, $minutes = 1): DateTime|null
     {
         $date = $date->format('Y-m-d H:i:s');
         $time = strtotime($date);
@@ -539,7 +704,7 @@ class DateUtil
      *
      * @throws Exception
      */
-    public static function subtractHoursToDate(DateTimeInterface $date, $hours = 1)
+    public static function subtractHoursToDate(DateTimeInterface $date, $hours = 1): DateTime
     {
         return self::subtractMinutesToDate($date, $hours * 60);
     }
@@ -552,18 +717,18 @@ class DateUtil
      *
      * @throws Exception
      */
-    public static function subtractDaysToDate(DateTimeInterface $date, $days = 1)
+    public static function subtractDaysToDate(DateTimeInterface $date, $days = 1): DateTime
     {
         return self::subtractHoursToDate($date, $days * 24);
     }
 
-    public static function isValidDate($date)
+    public static function isValidDate(string $date): bool
     {
         try {
             new DateTime($date);
 
             return $date && true;
-        } catch (Exception $exception) {
+        } catch (Exception $e) {
             return false;
         }
     }
@@ -577,7 +742,7 @@ class DateUtil
      *
      * @throws Exception
      */
-    public static function getDatesFromRange(string $start, string $end, $format = 'd-m-Y')
+    public static function getDatesFromRange(string $start, string $end, $format = 'd-m-Y'): array
     {
         // Declare an empty array
         $array = [];
@@ -590,7 +755,7 @@ class DateUtil
 
         $realEnd->add($interval);
 
-        $period = new \DatePeriod(new DateTime($start), $interval, $realEnd);
+        $period = new DatePeriod(new DateTime($start), $interval, $realEnd);
 
         // Use loop to store date into array
         foreach ($period as $date) {
@@ -604,7 +769,7 @@ class DateUtil
         return $array;
     }
 
-    public static function getWeekDayOfDate(DateTimeInterface $date)
+    public static function getWeekDayOfDate(DateTimeInterface $date): mixed
     {
         return self::parseDay($date->format('D'));
     }
@@ -627,9 +792,9 @@ class DateUtil
      *
      * @throws Exception
      */
-    public static function accordDateToTime(DateTimeInterface $dateTime, string $time)
+    public static function accordDateToTime(DateTimeInterface $dateTime, string $time): DateTime
     {
-        $f = $dateTime->format('d-m-Y').' '.$time;
+        $f = $dateTime->format('d-m-Y') . ' ' . $time;
 
         return new DateTime($f);
     }
@@ -642,13 +807,13 @@ class DateUtil
     }
 
     /**
-     * @return \DatePeriod
+     * @return DatePeriod
      *
      * @throws Exception
      */
-    public static function getDayDatesInPeriod(DateTimeInterface $start_date, DateTimeInterface $end_date)
+    public static function getDayDatesInPeriod(DateTimeInterface $start_date, DateTimeInterface $end_date): DatePeriod
     {
-        return new \DatePeriod(
+        return new DatePeriod(
             new DateTime($start_date->format('Y-m-d')),
             new \DateInterval('P1D'),
             new DateTime($end_date->format('Y-m-d'))
@@ -660,9 +825,9 @@ class DateUtil
         $months = [];
 
         foreach (range(1, 12) as $m) {
-            $start = self::getDate("01-$m-".$year.' 00:00');
+            $start = self::getDate("01-$m-" . $year . ' 00:00');
 
-            $end = self::subtractDaysToDate(self::getDate('01-'.(($m + 1) % 12).'-'.$year.' 23:59'));
+            $end = self::subtractDaysToDate(self::getDate('01-' . (($m + 1) % 12) . '-' . $year . ' 23:59'));
 
             $months[] = [
                 'start' => $start,
@@ -673,7 +838,7 @@ class DateUtil
         return $months;
     }
 
-    public static function getDayOfWeek(DateTimeInterface $date)
+    public static function getDayOfWeek(DateTimeInterface $date): string
     {
         $date = $date->format('y-m-d');
         $days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
@@ -682,8 +847,10 @@ class DateUtil
         return strtoupper($days[$dayOfWeek]);
     }
 
-    public static function adjustFilterInterval(?DateTimeInterface $start_date = null, ?DateTimeInterface $end_date = null)
-    {
+    public static function adjustFilterInterval(
+        ?DateTimeInterface $start_date = null,
+        ?DateTimeInterface $end_date = null
+    ): array {
         if (($start_date && $end_date) && $end_date->format('Y-m-d H:i') < $start_date->format('Y-m-d H:i')) {
             $end_date = $start_date;
         }
@@ -703,7 +870,8 @@ class DateUtil
         return [$start_date, $end_date];
     }
 
-    public static function formatDateDay(DateTimeInterface $date): string{
+    public static function formatDateDay(DateTimeInterface $date): string
+    {
         return $date->format('j/m/Y');
     }
 }
