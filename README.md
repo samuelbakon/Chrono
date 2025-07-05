@@ -311,7 +311,7 @@ composer static-analysis
 
 ## Auteur
 
-- [Samy](https://samuel-bakon.com)
+- [Samuel Bakon (Samy)](https://samuel-bakon.com)
 
 ---
 
