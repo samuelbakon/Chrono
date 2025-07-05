@@ -6,13 +6,13 @@
 [![Codecov](https://img.shields.io/codecov/c/github/samyasm/chrono)](https://codecov.io/gh/samyasm/chrono)
 [![Total Downloads](https://img.shields.io/packagist/dt/samyasm/chrono)](https://packagist.org/packages/samyasm/chrono)
 
-Si vous cherchez une librairie PHP complète pour gérer les dates, je vous recommande [Carbon](https://carbon.nesbot.com/).
+If you're looking for a full-featured PHP date library, I recommend [Carbon](https://carbon.nesbot.com/).
 
-Ce projet est plus utilitaire lite pour des besoins récurrents dans mes projets au fil du temps.
+This project is more of a utility library for recurring needs in my projects over time.
 
 ## Installation
 
-Utilisez Composer pour installer le package :
+Use Composer to install the package :
 
 ```bash
 composer require samyasm/chrono
@@ -20,9 +20,9 @@ composer require samyasm/chrono
 
 ## Migration depuis DateUtil (v1.x vers v2.x)
 
-Si vous migrez depuis une version précédente qui utilisait la classe `DateUtil`, voici comment mettre à jour votre code :
+If you're migrating from an older version that used the `DateUtil` class, here's how to update your code :
 
-### Ancienne méthode (DateUtil) :
+### Old method (DateUtil) :
 ```php
 use SamyAsm\Chrono\DateUtil;
 
@@ -38,7 +38,7 @@ $formatted = DateUtil::getDateAsString($date, 'Y-m-d');
 $dates = DateUtil::getDatesFromRange('2023-06-01', '2023-06-15');
 ```
 
-### Nouvelle méthode (Chrono* classes) :
+### New method (Chrono* classes) :
 ```php
 use SamyAsm\Chrono\ChronoCasting;
 use SamyAsm\Chrono\ChronoComputer;
@@ -56,27 +56,27 @@ $diff = ChronoComputer::getDateDayDif($date1, $date2);
 $dates = ChronoPeriod::getDatesFromRange('2023-06-01', '2023-06-15');
 ```
 
-### Principaux changements :
-1. Les méthodes ont été réparties dans des classes spécialisées :
-   - `ChronoComputer` : Opérations mathématiques sur les dates
-   - `ChronoCalendar` : Opérations de calendrier
-   - `ChronoPeriod` : Gestion des intervalles
-   - `ChronoCasting` : Conversion et formatage
+### Main changes :
+1. Methods have been distributed into specialized classes :
+   - `ChronoComputer` : Math operations on dates
+   - `ChronoCalendar` : Calendar operations
+   - `ChronoPeriod` : Interval management
+   - `ChronoCasting` : Conversion and formatting
 
-2. Meilleure cohérence des noms de méthodes et des types de retour
-3. Meilleure gestion des erreurs et des cas limites
-4. Documentation plus complète et exemples mis à jour
+2. Better method name consistency and return types
+3. Better error handling and edge case management
+4. More complete documentation and updated examples
 
-## Classes et Utilisation
+## Classes and Usage
 
 ### 1. ChronoComputer - Calculs de dates
 
-Gère les calculs et les opérations mathématiques sur les dates.
+Handles date calculations and mathematical operations on dates.
 
 ```php
 use SamyAsm\Chrono\ChronoComputer;
 
-// Ajouter des jours à une date
+// Add days to a date
 $date = new DateTime('2023-06-15 14:30:00');
 $newDate = ChronoComputer::addDaysToDate($date, 5);
 echo $newDate->format('Y-m-d H:i:s'); // 2023-06-20 14:30:00
@@ -93,17 +93,17 @@ $minutes = ChronoComputer::convertHoursToMinutes(2); // 120
 
 // Obtenir le temps écoulé depuis une date (format lisible)
 $lastSeen = new DateTime('2023-06-10 14:30:00');
-echo ChronoComputer::lastSeenHelp($lastSeen); // "3 Days" (si aujourd'hui est le 13/06/2023)
+echo ChronoComputer::lastSeenHelp($lastSeen); // "3 Days" (if today is 13/06/2023)
 ```
 
-### 2. ChronoCalendar - Opérations de calendrier
+### 2. ChronoCalendar - Calendar operations
 
-Gère les opérations liées au calendrier (jours, semaines, mois, années).
+Handles calendar operations (days, weeks, months, years).
 
 ```php
 use SamyAsm\Chrono\ChronoCalendar;
 
-// Obtenir le premier jour de la semaine pour une date donnée
+// Get the first day of the week for a given date
 $date = new DateTime('2023-06-15'); // Un jeudi
 $monday = ChronoCalendar::getFirstDayOfTheWeekFromDate($date);
 echo $monday->format('Y-m-d'); // 2023-06-12 (lundi)
@@ -120,24 +120,24 @@ echo $dayOfWeek; // "THURSDAY"
 echo ChronoCalendar::getMonthFromPosition(6); // "JUN"
 ```
 
-### 3. ChronoPeriod - Gestion des périodes
+### 3. ChronoPeriod - Interval management
 
-Gère les intervalles et les plages de dates.
+Handles intervals and date ranges.
 
 ```php
 use SamyAsm\Chrono\ChronoPeriod;
 
-// Obtenir l'intervalle d'aujourd'hui (de minuit à 23:59:59)
+// Get the interval of today (from midnight to 23:59:59)
 $today = ChronoPeriod::getIntervalOfToday();
 $start = $today['start']->format('Y-m-d H:i:s');
 $end = $today['end']->format('Y-m-d H:i:s');
-echo "Aujourd'hui de $start à $end";
+echo "Today from $start to $end";
 
-// Obtenir toutes les dates entre deux dates
+// Get all dates between two dates
 $startDate = '2023-06-01';
 $endDate = '2023-06-03';
 $dates = ChronoPeriod::getDatesFromRange($startDate, $endDate);
-// Retourne ['2023-06-01', '2023-06-02', '2023-06-03']
+// Returns ['2023-06-01', '2023-06-02', '2023-06-03']
 
 // Ajuster un intervalle de dates
 $interval = ChronoPeriod::adjustFilterInterval(
@@ -146,175 +146,175 @@ $interval = ChronoPeriod::adjustFilterInterval(
 );
 ```
 
-### 4. ChronoCasting - Conversion et formatage
+### 4. ChronoCasting - Conversion and formatting
 
-Gère la conversion entre différents formats de date et le typage.
+Handles the conversion between different date formats and typing.
 
 ```php
 use SamyAsm\Chrono\ChronoCasting;
 
-// Convertir un timestamp en objet DateTime
+// Convert a timestamp to a DateTime object
 $date = ChronoCasting::timeToDate(1686844800);
 echo $date->format('Y-m-d'); // 2023-06-15
 
-// Créer un objet DateTime à partir d'une chaîne
+// Create a DateTime object from a string
 $date = ChronoCasting::getDate('2023-06-15');
 
-// Formater une date
+// Format a date
 $formatted = ChronoCasting::getDateAsString($date, 'Y/m/d');
 echo $formatted; // 2023/06/15
 
-// Vérifier si une date est valide
+// Check if a date is valid
 $isValid = ChronoCasting::isValidDate('2023-12-31'); // true
 
-// Convertir un jour abrégé en nom complet
+// Convert an abbreviated day to its full name
 $fullDay = ChronoCasting::parseDay('Mon'); // "Monday"
 ```
 
-## Fonctionnalités principales
+## Main features
 
-- **ChronoComputer**: Calculs de dates et opérations mathématiques
-- **ChronoCalendar**: Opérations de calendrier (semaines, mois, années)
-- **ChronoPeriod**: Gestion des intervalles et plages de dates
-- **ChronoCasting**: Conversion entre formats et typage des dates
-- Compatible avec les objets DateTime natifs de PHP
-- Typage strict et documentation complète
-- Couverture de tests élevée
-- Respect des standards de code PSR-12
+- **ChronoComputer**: Date calculations and mathematical operations
+- **ChronoCalendar**: Calendar operations (weeks, months, years)
+- **ChronoPeriod**: Interval management and date ranges
+- **ChronoCasting**: Conversion between formats and typing of dates
+- Compatible with native PHP DateTime objects
+- Strict typing and complete documentation
+- High test coverage
+- Respect of PSR-12 code standards
 
-## Configuration requise
+## Configuration requirements
 
-- PHP 7.4 ou supérieur
-- Extension PHP DateTime activée
+- PHP 7.4 or higher
+- PHP DateTime extension enabled
 
 ## Licence
 
-Ce projet est sous licence MIT. Voir le fichier [LICENSE](LICENSE) pour plus de détails.
+This project is under the MIT license. See the [LICENSE](LICENSE) file for more details.
 
-## Documentation de l'API
+## API Documentation
 
 ### ChronoComputer
 
 #### `addDaysToDate(DateTimeInterface $dateTime, int $days = 1): ?DateTime`
-Ajoute un nombre de jours à une date.
+Add a number of days to a date.
 
 #### `getMinuteDateDif(DateTimeInterface $dateTime1, DateTimeInterface $dateTime2): int`
-Calcule la différence en minutes entre deux dates.
+Calculate the difference in minutes between two dates.
 
 #### `convertMinutesToHours(int $minutes = 1): float`
-Convertit des minutes en heures.
+Convert minutes to hours.
 
 #### `lastSeenHelp(string|DateTimeInterface $date): string`
-Retourne une chaîne lisible du temps écoulé depuis une date.
+Return a readable string of the time elapsed since a date.
 
 ### ChronoCalendar
 
 #### `getFirstDayOfTheWeekFromDate(DateTimeInterface $dateTime): ?DateTime`
-Retourne le premier jour (lundi) de la semaine pour une date donnée.
+Return the first day (Monday) of the week for a given date.
 
 #### `formatDateDay(DateTimeInterface $date): string`
-Formate une date au format jj/mm/aaaa.
+Format a date to the format dd/mm/yyyy.
 
 #### `getDayOfWeek(DateTimeInterface $date): string`
-Retourne le jour de la semaine en lettres majuscules.
+Return the day of the week in uppercase letters.
 
 #### `getMonthFromPosition(int $position): string`
-Retourne le nom du mois en majuscules (JAN, FEB, etc.).
+Return the name of the month in uppercase letters (JAN, FEB, etc.).
 
 ### ChronoPeriod
 
 #### `getIntervalOfToday(): array`
-Retourne l'intervalle d'aujourd'hui (de minuit à 23:59:59).
+Return the interval of today (from midnight to 23:59:59).
 
 #### `getDatesFromRange(string $start, string $end, string $format = 'd-m-Y'): array`
-Retourne un tableau de toutes les dates entre deux dates.
+Return an array of all dates between two dates.
 
 #### `adjustFilterInterval(?DateTimeInterface $startDate = null, ?DateTimeInterface $endDate = null): array`
-Ajuste un intervalle de dates (inverse les dates si nécessaire).
+Adjust a date interval (reverse dates if necessary).
 
 ### ChronoCasting
 
 #### `timeToDate(int $timestamp): ?DateTime`
-Convertit un timestamp Unix en objet DateTime.
+Convert a Unix timestamp to a DateTime object.
 
 #### `getDate($date = 'now'): ?DateTime`
-Crée un objet DateTime à partir d'une chaîne ou d'un objet DateTimeInterface.
+Create a DateTime object from a string or DateTimeInterface object.
 
 #### `getDateAsString(string|DateTimeInterface $date = 'now', string $format = 'd-m-Y'): string`
-Formate une date selon le format spécifié.
+Format a date according to the specified format.
 
 #### `isValidDate(string $date, string $format = 'd-m-Y'): bool`
-Vérifie si une chaîne représente une date valide selon le format donné.
+Check if a string represents a valid date according to the given format.
 
-Pour une documentation complète de toutes les méthodes, consultez le code source ou générez la documentation PHPDoc.
+For a complete documentation of all methods, consult the source code or generate PHPDoc documentation.
 
 ## Contribution
 
-Les contributions sont les bienvenues ! Avant de soumettre une pull request, merci de :
+Contributions are welcome! Before submitting a pull request, please :
 
-1. Créer une issue pour discuter du changement proposé
-2. Créer une branche pour votre fonctionnalité (`feature/ma-nouvelle-fonctionnalité`)
-3. Exécuter les tests et vous assurer qu'ils passent tous
+1. Create an issue to discuss the proposed change
+2. Create a branch for your feature (`feature/my-new-feature`)
+3. Run the tests and make sure they pass
    ```bash
    composer test
    ```
-4. Vérifier la qualité du code :
+4. Check the code quality :
    ```bash
-   # Vérifier le style de code
+   # Check code style
    composer check-style
    
-   # Exécuter l'analyse statique
+   # Run static analysis
    composer static-analysis
    
-   # Vérifier la couverture de code (doit être > 80%)
+   # Check code coverage (must be > 80%)
    composer test-coverage
    ```
-5. Mettre à jour la documentation si nécessaire
-6. Soumettre une pull request
+5. Update the documentation if necessary
+6. Submit a pull request
 
-### Environnement de développement
+### Development environment
 
-Pour configurer votre environnement de développement :
+To configure your development environment :
 
-1. Cloner le dépôt :
+1. Clone the repository :
    ```bash
    git clone https://github.com/yourusername/Chrono.git
    cd Chrono
    ```
 
-2. Installer les dépendances :
+2. Install dependencies :
    ```bash
    composer install
    ```
 
-3. Exécuter les tests :
+3. Run tests :
    ```bash
    composer test
    ```
 
 ## Changelog
 
-Consultez le [CHANGELOG.md](CHANGELOG.md) pour une liste des changements récents.
+Consult the [CHANGELOG.md](CHANGELOG.md) for a list of recent changes.
 
-## Développement
+## Development
 
-### Exécuter les tests
+### Run tests
 
 ```bash
 composer test
 ```
 
-### Vérifier la qualité du code
+### Check code quality
 
 ```bash
 composer check-style
 composer static-analysis
 ```
 
-## Auteur
+## Author
 
 - [Samuel Bakon (Samy)](https://samuel-bakon.com)
 
 ---
 
-Développé avec ❤️
+Developed with ❤️ And 🤖
