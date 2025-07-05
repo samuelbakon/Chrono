@@ -6,15 +6,14 @@ coverage:
         target: 100%  # Objectif de couverture de code
         threshold: 0%  # Marge d'erreur
     patch: off
-    changes: off
+    changes: true
 
 comment:
   layout: "reach, diff, flags, files, footer"
   behavior: default
   require_changes: false
-  require_base: no
-  require_head: yes
-  flags: null
+  require_base: false
+  require_head: true
   paths: ["src/"]
   branches: ["main", "master"]
 

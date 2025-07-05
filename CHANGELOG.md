@@ -15,9 +15,17 @@ et ce projet adhère à [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - Fichier de règles PHP_CodeSniffer personnalisé (phpcs.xml)
 - Tests unitaires supplémentaires pour améliorer la couverture de code
 - Badges dans le README pour la licence, la version PHP, les tests et la couverture
+- Support amélioré pour les objets DateTimeInterface dans toutes les méthodes
+- Détection automatique des arguments inversés dans les méthodes de formatage
+- Meilleure gestion des fuseaux horaires dans le constructeur de Chrono
 
 ### Modifié
 - Amélioration de la documentation des méthodes avec des exemples détaillés
+- Refonte complète de la classe Chrono pour étendre DateTime et implémenter DateTimeInterface
+- Mise à jour des méthodes de formatage pour une meilleure compatibilité
+- Correction des signatures de méthodes pour correspondre aux interfaces PHP natives
+- Amélioration de la gestion des erreurs et des exceptions
+- Optimisation des performances des opérations courantes
 - Correction des tests unitaires pour refléter le comportement réel des méthodes
 - Mise à jour du workflow GitHub Actions pour inclure l'upload des résultats de couverture
 - Amélioration de la configuration des outils d'analyse statique

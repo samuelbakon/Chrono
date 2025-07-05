@@ -2,12 +2,10 @@
 
 namespace SamyAsm\Chrono\Chrono;
 
-use DateInterval;
 use DateTimeInterface;
-use Exception;
 
 /**
- * Handles date intervals
+ * Handles date collections
  */
 class ChronoDateCollection
 {

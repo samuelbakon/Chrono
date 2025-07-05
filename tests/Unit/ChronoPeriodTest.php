@@ -4,14 +4,17 @@ declare(strict_types=1);
 
 namespace Tests\Unit;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use SamyAsm\Chrono\ChronoPeriod;
+use SamyAsm\Chrono\Chrono;
+use SamyAsm\Chrono\Traits\ChronoPeriodTrait;
 
+#[CoversClass(ChronoPeriodTrait::class)]
 class ChronoPeriodTest extends TestCase
 {
     public function testGetIntervalOfToday(): void
     {
-        $interval = ChronoPeriod::getIntervalOfToday();
+        $interval = Chrono::getTodayInterval();
 
         // Check that we have both start and end keys
         $this->assertArrayHasKey('start', $interval);
@@ -36,24 +39,24 @@ class ChronoPeriodTest extends TestCase
         $start = new \DateTime('2023-06-01');
         $end = new \DateTime('2023-06-15');
 
-        $result = ChronoPeriod::adjustFilterInterval($start, $end);
+        $result = Chrono::adjustInterval($start, $end);
         $this->assertEquals('2023-06-01', $result['start']->format('Y-m-d'));
         $this->assertEquals('2023-06-15', $result['end']->format('Y-m-d'));
 
         // Test with dates in wrong order (should be swapped)
-        $result = ChronoPeriod::adjustFilterInterval($end, $start);
+        $result = Chrono::adjustInterval($end, $start);
         $this->assertEquals('2023-06-01', $result['start']->format('Y-m-d'));
         $this->assertEquals('2023-06-15', $result['end']->format('Y-m-d'));
 
         // Test with null start date (should default to 1 month before end date)
-        $result = ChronoPeriod::adjustFilterInterval(null, $end);
+        $result = Chrono::adjustInterval(null, $end);
         $expectedStart = clone $end;
         $expectedStart->modify('-1 month');
         $this->assertEquals($expectedStart->format('Y-m-d'), $result['start']->format('Y-m-d'));
         $this->assertEquals('2023-06-15', $result['end']->format('Y-m-d'));
 
         // Test with both dates null (should use current date for end and 1 month before for start)
-        $result = ChronoPeriod::adjustFilterInterval();
+        $result = Chrono::adjustInterval();
         $this->assertInstanceOf(\DateTime::class, $result['start']);
         $this->assertInstanceOf(\DateTime::class, $result['end']);
 
@@ -69,7 +72,7 @@ class ChronoPeriodTest extends TestCase
         $start = '2023-06-01';
         $end = '2023-06-03';
 
-        $dates = ChronoPeriod::getDatesFromRange($start, $end);
+        $dates = Chrono::getDateRange($start, $end);
 
         $this->assertCount(3, $dates);
         $this->assertEquals('2023-06-01', $dates[0]);
@@ -77,7 +80,7 @@ class ChronoPeriodTest extends TestCase
         $this->assertEquals('2023-06-03', $dates[2]);
 
         // Test with custom format
-        $dates = ChronoPeriod::getDatesFromRange($start, $end, 'm/d/Y');
+        $dates = Chrono::getDateRange($start, $end, 'm/d/Y');
         $this->assertEquals('06/01/2023', $dates[0]);
     }
 
@@ -86,16 +89,11 @@ class ChronoPeriodTest extends TestCase
         $start = new \DateTime('2023-06-01');
         $end = new \DateTime('2023-06-03');
 
-        $period = ChronoPeriod::getDayDatesInPeriod($start, $end);
-
-        $dates = [];
-        foreach ($period as $date) {
-            $dates[] = $date->format('Y-m-d');
-        }
-
+        $dates = Chrono::getDaysInPeriod($start, $end);
+        
         $this->assertCount(3, $dates);
-        $this->assertEquals('2023-06-01', $dates[0]);
-        $this->assertEquals('2023-06-02', $dates[1]);
-        $this->assertEquals('2023-06-03', $dates[2]);
+        $this->assertEquals('2023-06-01', $dates[0]->format('Y-m-d'));
+        $this->assertEquals('2023-06-02', $dates[1]->format('Y-m-d'));
+        $this->assertEquals('2023-06-03', $dates[2]->format('Y-m-d'));
     }
 }
