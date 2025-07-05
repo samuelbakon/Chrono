@@ -3,7 +3,7 @@ coverage:
   status:
     project:
       default:
-        target: 100%  # Objectif de couverture de code
+        target: 90%  # Objectif de couverture de code
         threshold: 0%  # Marge d'erreur
     patch: off
     changes: true

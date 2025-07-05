@@ -160,6 +160,11 @@ trait ChronoFactoryTrait
             throw new InvalidArgumentException('Invalid date/time string or format');
         }
 
-        return new DateTime($date);
+        // Si on a un fuseau horaire, on s'assure qu'il est correctement défini
+        if ($timezone !== null) {
+            $date->setTimezone($timezone);
+        }
+
+        return $date;
     }
 }

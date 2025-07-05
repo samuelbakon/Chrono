@@ -26,8 +26,10 @@ ehthumbs.db
 Thumbs.db
 
 codecov
+coverage
 coverage.php
 coverage.xml
+coverage.html
 codecov.yml
 .coverage
 CODECOV.md

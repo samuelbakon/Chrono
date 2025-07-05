@@ -61,9 +61,10 @@ trait ChronoPeriodTrait
             $end = $now;
             $start = (clone $end)->sub(new DateInterval($defaultInterval));
         }
-        // If only end date is null, set it to now
+        // If only end date is null, set it to start + default interval
         elseif ($end === null) {
-            $end = $now;
+            $start = $convertToDateTime($start);
+            $end = (clone $start)->add(new DateInterval($defaultInterval));
         }
         // If only start date is null, set it relative to end date
         elseif ($start === null) {
