@@ -6,7 +6,9 @@
 [![Codecov](https://img.shields.io/codecov/c/github/samyasm/chrono)](https://codecov.io/gh/samyasm/chrono)
 [![Total Downloads](https://img.shields.io/packagist/dt/samyasm/chrono)](https://packagist.org/packages/samyasm/chrono)
 
-Une bibliothèque PHP moderne pour la manipulation et le formatage des dates, organisée en classes spécialisées pour une meilleure maintenabilité et une meilleure organisation du code.
+Si vous cherchez une librairie PHP complète pour gérer les dates, je vous recommande [Carbon](https://carbon.nesbot.com/).
+
+Ce projet est plus utilitaire lite pour des besoins récurrents dans mes projets au fil du temps.
 
 ## Installation
 
