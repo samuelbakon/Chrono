@@ -38,3 +38,4 @@ package.json
 node_modules
 .phpunit.result.cache
 .phpunit.cache
+publish.sh

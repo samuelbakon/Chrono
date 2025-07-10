@@ -38,22 +38,23 @@ $formatted = DateUtil::getDateAsString($date, 'Y-m-d');
 $dates = DateUtil::getDatesFromRange('2023-06-01', '2023-06-15');
 ```
 
-### New method (Chrono* classes) :
+### New method (Chrono class) :
 ```php
-use SamyAsm\Chrono\ChronoCasting;
-use SamyAsm\Chrono\ChronoComputer;
-use SamyAsm\Chrono\ChronoPeriod;
+use SamyAsm\Chrono\Chrono;
 
-// Conversion et formatage (remplace DateUtil::getDate, getDateAsString, etc.)
-$date = ChronoCasting::getDate('2023-06-15');
-$formatted = ChronoCasting::getDateAsString($date, 'Y-m-d');
+// Toutes les fonctionnalités sont accessibles via la classe Chrono
+$chrono = new Chrono();
 
-// Opérations mathématiques (remplace addDaysToDate, getDateDayDif, etc.)
-$newDate = ChronoComputer::addDaysToDate($date, 5);
-$diff = ChronoComputer::getDateDayDif($date1, $date2);
+// Conversion et formatage
+$date = $chrono->getDate('2023-06-15');
+$formatted = $chrono->getDateAsString($date, 'Y-m-d');
 
-// Périodes (remplace getDatesFromRange, etc.)
-$dates = ChronoPeriod::getDatesFromRange('2023-06-01', '2023-06-15');
+// Opérations mathématiques
+$newDate = $chrono->addDaysToDate($date, 5);
+$diff = $chrono->getDateDayDif($date1, $date2);
+
+// Périodes
+$dates = $chrono->getDatesFromRange('2023-06-01', '2023-06-15');
 ```
 
 ### Main changes :
@@ -67,18 +68,22 @@ $dates = ChronoPeriod::getDatesFromRange('2023-06-01', '2023-06-15');
 3. Better error handling and edge case management
 4. More complete documentation and updated examples
 
-## Classes and Usage
+## Usage
 
-### 1. ChronoComputer - Calculs de dates
+### Basic usage
 
-Handles date calculations and mathematical operations on dates.
+All functionalities are now available through the main `Chrono` class:
 
 ```php
-use SamyAsm\Chrono\ChronoComputer;
+use SamyAsm\Chrono\Chrono;
+
+$chrono = new Chrono();
+
+// Create a date
+$date = $chrono->getDate('2023-06-15 14:30:00');
 
 // Add days to a date
-$date = new DateTime('2023-06-15 14:30:00');
-$newDate = ChronoComputer::addDaysToDate($date, 5);
+$newDate = $chrono->addDaysToDate($date, 5);
 echo $newDate->format('Y-m-d H:i:s'); // 2023-06-20 14:30:00
 
 // Calculer la différence en minutes entre deux dates
@@ -96,17 +101,13 @@ $lastSeen = new DateTime('2023-06-10 14:30:00');
 echo ChronoComputer::lastSeenHelp($lastSeen); // "3 Days" (if today is 13/06/2023)
 ```
 
-### 2. ChronoCalendar - Calendar operations
-
-Handles calendar operations (days, weeks, months, years).
+### Calendar operations
 
 ```php
-use SamyAsm\Chrono\ChronoCalendar;
-
 // Get the first day of the week for a given date
-$date = new DateTime('2023-06-15'); // Un jeudi
-$monday = ChronoCalendar::getFirstDayOfTheWeekFromDate($date);
-echo $monday->format('Y-m-d'); // 2023-06-12 (lundi)
+$date = $chrono->getDate('2023-06-15'); // A Thursday
+$monday = $chrono->getFirstDayOfTheWeekFromDate($date);
+echo $monday->format('Y-m-d'); // 2023-06-12 (Monday)
 
 // Formater une date
 $formattedDate = ChronoCalendar::formatDateDay($date);
@@ -120,15 +121,11 @@ echo $dayOfWeek; // "THURSDAY"
 echo ChronoCalendar::getMonthFromPosition(6); // "JUN"
 ```
 
-### 3. ChronoPeriod - Interval management
-
-Handles intervals and date ranges.
+### Interval management
 
 ```php
-use SamyAsm\Chrono\ChronoPeriod;
-
 // Get the interval of today (from midnight to 23:59:59)
-$today = ChronoPeriod::getIntervalOfToday();
+$today = $chrono->getIntervalOfToday();
 $start = $today['start']->format('Y-m-d H:i:s');
 $end = $today['end']->format('Y-m-d H:i:s');
 echo "Today from $start to $end";
@@ -146,15 +143,11 @@ $interval = ChronoPeriod::adjustFilterInterval(
 );
 ```
 
-### 4. ChronoCasting - Conversion and formatting
-
-Handles the conversion between different date formats and typing.
+### Conversion and formatting
 
 ```php
-use SamyAsm\Chrono\ChronoCasting;
-
 // Convert a timestamp to a DateTime object
-$date = ChronoCasting::timeToDate(1686844800);
+$date = $chrono->timeToDate(1686844800);
 echo $date->format('Y-m-d'); // 2023-06-15
 
 // Create a DateTime object from a string
@@ -193,7 +186,7 @@ This project is under the MIT license. See the [LICENSE](LICENSE) file for more 
 
 ## API Documentation
 
-### ChronoComputer
+### Date Operations
 
 #### `addDaysToDate(DateTimeInterface $dateTime, int $days = 1): ?DateTime`
 Add a number of days to a date.
@@ -207,7 +200,7 @@ Convert minutes to hours.
 #### `lastSeenHelp(string|DateTimeInterface $date): string`
 Return a readable string of the time elapsed since a date.
 
-### ChronoCalendar
+### Calendar Operations
 
 #### `getFirstDayOfTheWeekFromDate(DateTimeInterface $dateTime): ?DateTime`
 Return the first day (Monday) of the week for a given date.
@@ -221,7 +214,7 @@ Return the day of the week in uppercase letters.
 #### `getMonthFromPosition(int $position): string`
 Return the name of the month in uppercase letters (JAN, FEB, etc.).
 
-### ChronoPeriod
+### Interval Management
 
 #### `getIntervalOfToday(): array`
 Return the interval of today (from midnight to 23:59:59).
@@ -232,7 +225,7 @@ Return an array of all dates between two dates.
 #### `adjustFilterInterval(?DateTimeInterface $startDate = null, ?DateTimeInterface $endDate = null): array`
 Adjust a date interval (reverse dates if necessary).
 
-### ChronoCasting
+### Conversion and Formatting
 
 #### `timeToDate(int $timestamp): ?DateTime`
 Convert a Unix timestamp to a DateTime object.
