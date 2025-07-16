@@ -24,37 +24,35 @@ If you're migrating from an older version that used the `DateUtil` class, here's
 
 ### Old method (DateUtil) :
 ```php
-use SamBakon\Chrono\DateUtil;
+## Recommended Usage (Static Methods)
 
-// Opérations de base
-$date = DateUtil::getDate('2023-06-15');
-$newDate = DateUtil::addDaysToDate($date, 5);
-$diff = DateUtil::getDateDayDif($date1, $date2);
+All Chrono methods are available statically, which is the recommended way to use the library:
 
-// Formatage
-$formatted = DateUtil::getDateAsString($date, 'Y-m-d');
-
-// Périodes
-$dates = DateUtil::getDatesFromRange('2023-06-01', '2023-06-15');
-```
-
-### New method (Chrono class) :
 ```php
 use SamBakon\Chrono\Chrono;
 
-// Toutes les fonctionnalités sont accessibles via la classe Chrono
-$chrono = new Chrono();
+// Create and format dates
+$date = Chrono::getDate('2023-06-15');
+$formatted = Chrono::getDateAsString($date, 'Y-m-d');
 
-// Conversion et formatage
+// Date calculations
+$newDate = Chrono::addDaysToDate($date, 5);
+$diff = Chrono::getDateDayDif($date1, $date2);
+
+// Date ranges
+$dates = Chrono::getDatesFromRange('2023-06-01', '2023-06-15');
+```
+
+### Alternative (Instance Methods)
+
+While static usage is preferred, you can also create an instance of Chrono if needed:
+
+```php
+use SamBakon\Chrono\Chrono;
+
+$chrono = new Chrono();
 $date = $chrono->getDate('2023-06-15');
 $formatted = $chrono->getDateAsString($date, 'Y-m-d');
-
-// Opérations mathématiques
-$newDate = $chrono->addDaysToDate($date, 5);
-$diff = $chrono->getDateDayDif($date1, $date2);
-
-// Périodes
-$dates = $chrono->getDatesFromRange('2023-06-01', '2023-06-15');
 ```
 
 ### Main changes :
@@ -72,18 +70,16 @@ $dates = $chrono->getDatesFromRange('2023-06-01', '2023-06-15');
 
 ### Basic usage
 
-All functionalities are now available through the main `Chrono` class:
+All functionalities are available through static methods of the `Chrono` class:
 
 ```php
 use SamBakon\Chrono\Chrono;
 
-$chrono = new Chrono();
-
 // Create a date
-$date = $chrono->getDate('2023-06-15 14:30:00');
+$date = Chrono::getDate('2023-06-15 14:30:00');
 
 // Add days to a date
-$newDate = $chrono->addDaysToDate($date, 5);
+$newDate = Chrono::addDaysToDate($date, 5);
 echo $newDate->format('Y-m-d H:i:s'); // 2023-06-20 14:30:00
 
 // Calculer la différence en minutes entre deux dates
@@ -105,8 +101,8 @@ echo ChronoComputer::lastSeenHelp($lastSeen); // "3 Days" (if today is 13/06/202
 
 ```php
 // Get the first day of the week for a given date
-$date = $chrono->getDate('2023-06-15'); // A Thursday
-$monday = $chrono->getFirstDayOfTheWeekFromDate($date);
+$date = Chrono::getDate('2023-06-15'); // A Thursday
+$monday = Chrono::getFirstDayOfTheWeekFromDate($date);
 echo $monday->format('Y-m-d'); // 2023-06-12 (Monday)
 
 // Formater une date
@@ -125,7 +121,7 @@ echo ChronoCalendar::getMonthFromPosition(6); // "JUN"
 
 ```php
 // Get the interval of today (from midnight to 23:59:59)
-$today = $chrono->getIntervalOfToday();
+$today = Chrono::getIntervalOfToday();
 $start = $today['start']->format('Y-m-d H:i:s');
 $end = $today['end']->format('Y-m-d H:i:s');
 echo "Today from $start to $end";
@@ -147,14 +143,14 @@ $interval = ChronoPeriod::adjustFilterInterval(
 
 ```php
 // Convert a timestamp to a DateTime object
-$date = $chrono->timeToDate(1686844800);
+$date = Chrono::timeToDate(1686844800);
 echo $date->format('Y-m-d'); // 2023-06-15
 
 // Create a DateTime object from a string
-$date = ChronoCasting::getDate('2023-06-15');
+$date = Chrono::getDate('2023-06-15');
 
 // Format a date
-$formatted = ChronoCasting::getDateAsString($date, 'Y/m/d');
+$formatted = Chrono::getDateAsString($date, 'Y/m/d');
 echo $formatted; // 2023/06/15
 
 // Check if a date is valid
@@ -185,59 +181,6 @@ $fullDay = ChronoCasting::parseDay('Mon'); // "Monday"
 This project is under the MIT license. See the [LICENSE](LICENSE) file for more details.
 
 ## API Documentation
-
-### Date Operations
-
-#### `addDaysToDate(DateTimeInterface $dateTime, int $days = 1): ?DateTime`
-Add a number of days to a date.
-
-#### `getMinuteDateDif(DateTimeInterface $dateTime1, DateTimeInterface $dateTime2): int`
-Calculate the difference in minutes between two dates.
-
-#### `convertMinutesToHours(int $minutes = 1): float`
-Convert minutes to hours.
-
-#### `lastSeenHelp(string|DateTimeInterface $date): string`
-Return a readable string of the time elapsed since a date.
-
-### Calendar Operations
-
-#### `getFirstDayOfTheWeekFromDate(DateTimeInterface $dateTime): ?DateTime`
-Return the first day (Monday) of the week for a given date.
-
-#### `formatDateDay(DateTimeInterface $date): string`
-Format a date to the format dd/mm/yyyy.
-
-#### `getDayOfWeek(DateTimeInterface $date): string`
-Return the day of the week in uppercase letters.
-
-#### `getMonthFromPosition(int $position): string`
-Return the name of the month in uppercase letters (JAN, FEB, etc.).
-
-### Interval Management
-
-#### `getIntervalOfToday(): array`
-Return the interval of today (from midnight to 23:59:59).
-
-#### `getDatesFromRange(string $start, string $end, string $format = 'd-m-Y'): array`
-Return an array of all dates between two dates.
-
-#### `adjustFilterInterval(?DateTimeInterface $startDate = null, ?DateTimeInterface $endDate = null): array`
-Adjust a date interval (reverse dates if necessary).
-
-### Conversion and Formatting
-
-#### `timeToDate(int $timestamp): ?DateTime`
-Convert a Unix timestamp to a DateTime object.
-
-#### `getDate($date = 'now'): ?DateTime`
-Create a DateTime object from a string or DateTimeInterface object.
-
-#### `getDateAsString(string|DateTimeInterface $date = 'now', string $format = 'd-m-Y'): string`
-Format a date according to the specified format.
-
-#### `isValidDate(string $date, string $format = 'd-m-Y'): bool`
-Check if a string represents a valid date according to the given format.
 
 For a complete documentation of all methods, consult the source code or generate PHPDoc documentation.
 
