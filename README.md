@@ -1,10 +1,10 @@
 # Chrono
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![PHP Version](https://img.shields.io/packagist/php-v/samyasm/chrono)](https://www.php.net/)
-[![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/samyasm/chrono/php.yml?branch=main)](https://github.com/samyasm/chrono/actions)
-[![Codecov](https://img.shields.io/codecov/c/github/samyasm/chrono)](https://codecov.io/gh/samyasm/chrono)
-[![Total Downloads](https://img.shields.io/packagist/dt/samyasm/chrono)](https://packagist.org/packages/samyasm/chrono)
+[![PHP Version](https://img.shields.io/packagist/php-v/samuelbakon/chrono)](https://www.php.net/)
+[![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/samuelbakon/chrono/php.yml?branch=main)](https://github.com/samuelbakon/chrono/actions)
+[![Codecov](https://img.shields.io/codecov/c/github/samuelbakon/chrono)](https://codecov.io/gh/samuelbakon/chrono)
+[![Total Downloads](https://img.shields.io/packagist/dt/samuelbakon/chrono)](https://packagist.org/packages/samuelbakon/chrono)
 
 If you're looking for a full-featured PHP date library, I recommend [Carbon](https://carbon.nesbot.com/).
 
@@ -15,7 +15,7 @@ This project is more of a utility library for recurring needs in my projects ove
 Use Composer to install the package :
 
 ```bash
-composer require samyasm/chrono
+composer require samuelbakon/chrono
 ```
 
 ## Migration depuis DateUtil (v1.x vers v2.x)
@@ -24,7 +24,7 @@ If you're migrating from an older version that used the `DateUtil` class, here's
 
 ### Old method (DateUtil) :
 ```php
-use SamyAsm\Chrono\DateUtil;
+use SamBakon\Chrono\DateUtil;
 
 // Opérations de base
 $date = DateUtil::getDate('2023-06-15');
@@ -40,7 +40,7 @@ $dates = DateUtil::getDatesFromRange('2023-06-01', '2023-06-15');
 
 ### New method (Chrono class) :
 ```php
-use SamyAsm\Chrono\Chrono;
+use SamBakon\Chrono\Chrono;
 
 // Toutes les fonctionnalités sont accessibles via la classe Chrono
 $chrono = new Chrono();
@@ -75,7 +75,7 @@ $dates = $chrono->getDatesFromRange('2023-06-01', '2023-06-15');
 All functionalities are now available through the main `Chrono` class:
 
 ```php
-use SamyAsm\Chrono\Chrono;
+use SamBakon\Chrono\Chrono;
 
 $chrono = new Chrono();
 

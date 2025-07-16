@@ -6,10 +6,10 @@ namespace Tests\Unit;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use SamyAsm\Chrono\Chrono;
-use SamyAsm\Chrono\Traits\ChronoFormatTrait;
-use SamyAsm\Chrono\Traits\ChronoUtilsTrait;
-use SamyAsm\Chrono\Traits\ChronoCalendarTrait;
+use SamBakon\Chrono\Chrono;
+use SamBakon\Chrono\Traits\ChronoFormatTrait;
+use SamBakon\Chrono\Traits\ChronoUtilsTrait;
+use SamBakon\Chrono\Traits\ChronoCalendarTrait;
 
 #[CoversClass(ChronoFormatTrait::class)]
 #[CoversClass(ChronoUtilsTrait::class)]

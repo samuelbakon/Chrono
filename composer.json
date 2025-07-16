@@ -1,11 +1,11 @@
 {
-    "name": "samyasm/chrono",
+    "name": "sambakon/chrono",
     "description": "A PHP utility for date manipulation and formatting",
     "type": "library",
     "license": "MIT",
     "authors": [
         {
-            "name": "Samy",
+            "name": "Samuel Bakon",
             "email": "contact@samuel-bakon.com"
         }
     ],
@@ -14,7 +14,7 @@
     },
     "autoload": {
         "psr-4": {
-            "SamyAsm\\Chrono\\": "src/"
+            "SamBakon\\Chrono\\": "src/"
         },
         "classmap": ["src/"]
     },

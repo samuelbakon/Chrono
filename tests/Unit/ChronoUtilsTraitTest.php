@@ -6,9 +6,9 @@ namespace Tests\Unit;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use SamyAsm\Chrono\Chrono;
-use SamyAsm\Chrono\Traits\ChronoUtilsTrait;
-use SamyAsm\Chrono\Traits\ChronoCastingTrait;
+use SamBakon\Chrono\Chrono;
+use SamBakon\Chrono\Traits\ChronoUtilsTrait;
+use SamBakon\Chrono\Traits\ChronoCastingTrait;
 
 #[CoversClass(ChronoUtilsTrait::class)]
 #[CoversClass(ChronoCastingTrait::class)]

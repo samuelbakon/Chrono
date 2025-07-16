@@ -6,11 +6,11 @@ namespace Tests\Unit;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use SamyAsm\Chrono\Chrono;
+use SamBakon\Chrono\Chrono;
 use DateTime;
 use DateTimeImmutable;
 use InvalidArgumentException;
-use SamyAsm\Chrono\Traits\ChronoCastingTrait;
+use SamBakon\Chrono\Traits\ChronoCastingTrait;
 
 #[CoversClass(ChronoCastingTrait::class)]
 class ChronoCastingTraitTest extends TestCase

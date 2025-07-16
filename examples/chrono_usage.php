@@ -2,7 +2,7 @@
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
-use SamyAsm\Chrono\Chrono;
+use SamBakon\Chrono\Chrono;
 
 // Example 1: Basic usage
 $chrono = new Chrono('2023-06-15 14:30:00');

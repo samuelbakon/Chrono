@@ -2,9 +2,9 @@
 
 require_once __DIR__ . '/vendor/autoload.php';
 
-use SamyAsm\Chrono\ChronoCalendar;
-use SamyAsm\Chrono\ChronoCasting;
-use SamyAsm\Chrono\ChronoComputer;
+use SamBakon\Chrono\ChronoCalendar;
+use SamBakon\Chrono\ChronoCasting;
+use SamBakon\Chrono\ChronoComputer;
 
 // Créer une date de test
 $date = new DateTime('2023-06-15 14:30:00');

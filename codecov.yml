@@ -31,6 +31,6 @@ codecov:
   notify:
     after_n_builds: 1  # Notifier après chaque build
   branch: main  # Branche par défaut
-  slug: samy/Chrono  # Nom du dépôt
+  slug: samuelbakon/chrono  # Nom du dépôt
   token: ${CODECOV_TOKEN}  # Le token sera fourni par les secrets GitHub
   verbose: true  # Mode verbeux pour le débogage

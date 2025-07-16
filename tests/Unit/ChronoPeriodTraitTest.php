@@ -6,12 +6,12 @@ namespace Tests\Unit;
 
 use PHPUnit\Framework\Attributes\CoversTrait;
 use PHPUnit\Framework\TestCase;
-use SamyAsm\Chrono\Chrono;
+use SamBakon\Chrono\Chrono;
 use DateTime;
 use DateTimeImmutable;
 use DateTimeZone;
 
-#[CoversTrait(\SamyAsm\Chrono\Traits\ChronoPeriodTrait::class)]
+#[CoversTrait(\SamBakon\Chrono\Traits\ChronoPeriodTrait::class)]
 class ChronoPeriodTraitTest extends TestCase
 {
     public function testGetTodayInterval()

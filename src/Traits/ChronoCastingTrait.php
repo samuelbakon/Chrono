@@ -1,6 +1,6 @@
 <?php
 
-namespace SamyAsm\Chrono\Traits;
+namespace SamBakon\Chrono\Traits;
 
 use DateTime;
 use DateTimeImmutable;

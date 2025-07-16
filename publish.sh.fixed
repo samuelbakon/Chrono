@@ -1,0 +1,208 @@
+#!/bin/bash
+
+# Get the latest version tag
+latest_version=$(git describe --tags --abbrev=0 2>/dev/null || echo "0.0.0")
+
+# Parse all arguments
+for arg in "$@"; do
+    # Handle combined flags (e.g., -up, -fp, -upf, etc.)
+    if [[ $arg == -* ]]; then
+        # Remove the leading dash
+        flags=${arg#-}
+        # Process each character as a separate flag
+        for (( i=0; i<${#flags}; i++ )); do
+            case ${flags:$i:1} in
+                u) u=1 ;;
+                p) p=1 ;;
+                f) f=1 ;;
+                a) alpha=1 ;;
+                b) beta=1 ;;
+                *) echo "Unknown flag: -${flags:$i:1}" >&2; exit 1 ;;
+            esac
+        done
+    fi
+done
+
+# Check if at least one valid flag is provided
+if [[ -z "$u" && -z "$f" && -z "$p" && -z "$alpha" && -z "$beta" ]]; then
+    echo "Usage: $0 -[u|f|p|a|b]"
+    echo "  -u    Major version"
+    echo "  -f    Minor version"
+    echo "  -p    Patch version"
+    echo "  -a    Alpha pre-release"
+    echo "  -b    Beta pre-release"
+    echo "Examples:"
+    echo "  $0 -p        # Bump patch version"
+    echo "  $0 -fp       # Bump minor and patch versions"
+    echo "  $0 -u -a     # Bump major version and set alpha"
+    echo "  $0 -uap      # Bump major and patch versions, set alpha"
+    exit 1
+fi
+
+# Get pre-release part if it exists
+if [[ $latest_version == *"-"* ]]; then
+    prerelease_part="${latest_version#*-}"
+    version_part="${latest_version%-*}"
+else
+    prerelease_part=""
+    version_part="$latest_version"
+fi
+
+# Extract version components
+major=$(echo $version_part | cut -d. -f1)
+minor=$(echo $version_part | cut -d. -f2)
+patch=$(echo $version_part | cut -d. -f3)
+
+# Reset pre-release if doing a major/minor/patch bump
+if [[ -n "$u" || -n "$f" || -n "$p" ]]; then
+    prerelease_part=""
+fi
+
+# Handle version bumping
+if [[ -n "$u" ]]; then  # Major version bump
+    major=$((major + 1))
+    minor=0
+    patch=0
+    # Only reset pre-release if not specifying a new one
+    [[ -z "$alpha" && -z "$beta" ]] && prerelease_part=""
+fi
+
+if [[ -n "$f" ]]; then  # Minor version bump
+    minor=$((minor + 1))
+    patch=0
+    # Only reset pre-release if not specifying a new one
+    [[ -z "$alpha" && -z "$beta" ]] && prerelease_part=""
+fi
+
+if [[ -n "$p" ]]; then  # Patch version bump
+    patch=$((patch + 1))
+    # Only reset pre-release if not specifying a new one
+    [[ -z "$alpha" && -z "$beta" ]] && prerelease_part=""
+fi
+
+# Handle pre-release versions
+if [[ -n "$alpha" && -n "$beta" ]]; then
+    echo "Error: Cannot specify both alpha and beta" >&2
+    exit 1
+fi
+
+if [[ -n "$alpha" ]]; then
+    if [[ "$prerelease_part" == alpha* ]]; then
+        # Increment alpha number
+        if [[ "$prerelease_part" =~ ^alpha\.([0-9]+)$ ]]; then
+            alpha_num=$((${BASH_REMATCH[1]} + 1))
+            prerelease_part="alpha.$alpha_num"
+        else
+            prerelease_part="alpha.1"
+        fi
+    else
+        prerelease_part="alpha.1"
+    fi
+elif [[ -n "$beta" ]]; then
+    if [[ "$prerelease_part" == beta* ]]; then
+        # Increment beta number
+        if [[ "$prerelease_part" =~ ^beta\.([0-9]+)$ ]]; then
+            beta_num=$((${BASH_REMATCH[1]} + 1))
+            prerelease_part="beta.$beta_num"
+        else
+            prerelease_part="beta.1"
+        fi
+    else
+        prerelease_part="beta.1"
+    fi
+fi
+
+# Build the new version
+new_version="$major.$minor.$patch"
+
+if [[ -n "$prerelease_part" ]]; then
+    new_version="$new_version-$prerelease_part"
+fi
+
+# Function to validate semantic version
+validate_semver() {
+    local version=$1
+    if [[ $version =~ ^([0-9]+)\.([0-9]+)\.([0-9]+)(-([0-9A-Za-z-]+(\.[0-9A-Za-z-]+)*))?(\+[0-9A-Za-z-]+)?$ ]]; then
+        return 0
+    else
+        return 1
+    fi
+}
+
+# 1. Load the latest version tag
+current_version=$(git describe --tags --abbrev=0 2>/dev/null || echo "0.0.0")
+
+# 2. Prompt user about using the current version
+echo "The current version is $current_version"
+echo "The next version is $new_version"
+
+read -p "Do you want to update to $new_version? [Y/n] " use_current
+use_current=${use_current:-Y}
+
+if [[ $use_current =~ ^[Yy]$ ]]; then
+    echo "Ok, we'll use version $new_version"
+else
+    while true; do
+        read -p "Enter new version (recommended: $new_version): " new_version
+        new_version=${new_version:-$new_version}
+        
+        if validate_semver "$new_version"; then
+            break
+        else
+            echo "Error: Version must follow semantic versioning (e.g., 1.2.3 or 2.0.0-alpha.1)"
+        fi
+    done
+fi
+
+# New version should be greater than current version
+if [[ "$(printf "%s\n%s" "$current_version" "$new_version" | sort -V | head -n1)" == "$new_version" && "$current_version" != "$new_version" ]]; then
+    echo "Error: New version $new_version must be greater than current version $current_version"
+    exit 1
+fi
+
+# 3. Confirm Git tag creation
+read -p "Create Git tag $new_version? [Y/n] " create_tag
+create_tag=${create_tag:-Y}
+
+if [[ $create_tag =~ ^[Yy]$ ]]; then
+    # Check if tag already exists
+    if git rev-parse "$new_version" >/dev/null 2>&1; then
+        echo "Error: Tag $new_version already exists!"
+        exit 1
+    fi
+fi
+
+# 4. Push tag to origin
+read -p "Push tag $new_version to origin? [Y/n] " push_tag
+push_tag=${push_tag:-Y}
+
+# 5. Create GitHub/GitLab release
+read -p "Create GitHub/GitLab release for $new_version? [Y/n] " create_release
+create_release=${create_release:-Y}
+
+git tag -a "$new_version" -m "Release $new_version"
+echo "Created tag $new_version"
+
+if [[ $push_tag =~ ^[Yy]$ ]]; then
+    git push --tags origin $new_version
+fi
+
+if [[ $create_release =~ ^[Yy]$ ]]; then
+    # Check if gh (GitHub CLI) is installed
+    if command -v gh &> /dev/null; then
+        gh release create "$new_version" --title "$new_version" --generate-notes
+        echo "Release process completed for $new_version"
+    else
+        echo "GitHub CLI (gh) not found. Please install it or create the release manually."
+        echo "Visit: https://github.com/cli/cli#installation"
+    fi
+fi
+
+# Run tests and generate coverage
+./vendor/bin/phpunit --coverage-clover=coverage.xml --coverage-html=coverage.html --show-uncovered-for-coverage-text
+
+# Push changes and tags
+git push && git tag $new_version && git push --tags origin $new_version
+
+# Upload coverage to codecov
+./codecov -t bcfba94f-167b-4e37-bbaf-3f7be1004d9e -f coverage.xml

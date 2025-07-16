@@ -1,6 +1,6 @@
 <?php
 
-namespace SamyAsm\Chrono\Chrono;
+namespace SamBakon\Chrono\Chrono;
 
 use DateTimeInterface;
 

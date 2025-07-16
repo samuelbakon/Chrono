@@ -1,14 +1,14 @@
 <?php
 
-namespace SamyAsm\Chrono;
+namespace SamBakon\Chrono;
 
-use SamyAsm\Chrono\Traits\ChronoCalendarTrait;
-use SamyAsm\Chrono\Traits\ChronoComputingTrait;
-use SamyAsm\Chrono\Traits\ChronoPeriodTrait;
-use SamyAsm\Chrono\Traits\ChronoCastingTrait;
-use SamyAsm\Chrono\Traits\ChronoUtilsTrait;
-use SamyAsm\Chrono\Traits\ChronoFactoryTrait;
-use SamyAsm\Chrono\Traits\ChronoFormatTrait;
+use SamBakon\Chrono\Traits\ChronoCalendarTrait;
+use SamBakon\Chrono\Traits\ChronoComputingTrait;
+use SamBakon\Chrono\Traits\ChronoPeriodTrait;
+use SamBakon\Chrono\Traits\ChronoCastingTrait;
+use SamBakon\Chrono\Traits\ChronoUtilsTrait;
+use SamBakon\Chrono\Traits\ChronoFactoryTrait;
+use SamBakon\Chrono\Traits\ChronoFormatTrait;
 
 class Chrono
 {

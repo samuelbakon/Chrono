@@ -6,8 +6,8 @@ namespace Tests\Unit;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use SamyAsm\Chrono\Chrono;
-use SamyAsm\Chrono\Traits\ChronoCalendarTrait;
+use SamBakon\Chrono\Chrono;
+use SamBakon\Chrono\Traits\ChronoCalendarTrait;
 use DateTime;
 use DateTimeInterface;
 use InvalidArgumentException;
